@@ -127,9 +127,9 @@ pipeline {
             }
         }
 
-        stage('Deploy app on EC2-cloud Production') {
+        stage('Deploy app on EC2-cloud Production test') {
             agent {
-                docker{
+                docker {
                     image 'alpine'
                     label 'docker-alpine'
                     
