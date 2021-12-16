@@ -106,22 +106,23 @@ pipeline {
         }
         
         stage('Deploy app on EC2-cloud Production') {
-        agent any
-        when{
-            expression{ GIT_BRANCH == 'origin/master'}
-        }
-        steps{
-            withCredentials([sshUserPrivateKey(credentialsId: "ec2_prod_private_key", keyFileVariable: 'keyfile', usernameVariable: 'NUSER')]) {
-                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                    script{ 
-                        
-                        timeout(time: 15, unit: "MINUTES") {
-                            input message: 'Do you want to approve the deploy in production?', ok: 'Yes'
+            agent any
+            when{
+               expression{ GIT_BRANCH == 'origin/master'}
+            }
+            steps{
+                withCredentials([sshUserPrivateKey(credentialsId: "ec2_prod_private_key", keyFileVariable: 'keyfile', usernameVariable: 'NUSER')]) {
+                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                        script{ 
+
+                            timeout(time: 15, unit: "MINUTES") {
+                                input message: 'Do you want to approve the deploy in production?', ok: 'Yes'
+                            }
+
+                            sh'''
+                                ssh -o StrictHostKeyChecking=no -i ${keyfile} ${NUSER}@${EC2_PRODUCTION_HOST} docker run --name $CONTAINER_NAME -d -e PORT=5000 -p 5000:5000 $USERNAME/$IMAGE_NAME:$IMAGE_TAG
+                            '''
                         }
-                        
-                        sh'''
-                            ssh -o StrictHostKeyChecking=no -i ${keyfile} ${NUSER}@${EC2_PRODUCTION_HOST} docker run --name $CONTAINER_NAME -d -e PORT=5000 -p 5000:5000 $USERNAME/$IMAGE_NAME:$IMAGE_TAG
-                        '''
                     }
                 }
             }
