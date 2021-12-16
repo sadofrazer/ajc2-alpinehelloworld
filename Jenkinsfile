@@ -6,7 +6,7 @@ pipeline {
         STAGING = "frazer-ajc-staging-env"
         PRODUCTION = "frazer-ajc-prod-env"
         USERNAME = "sadofrazer"
-        CONTAINER_NAME = "alpinehelloworld"
+        CONTAINER_NAME = alpinehelloworld"
     }
 
     agent none
