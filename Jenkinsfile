@@ -127,6 +127,42 @@ pipeline {
             }
         }
 
+        stage('Deploy app on EC2-cloud Production') {
+            agent {
+                docker{
+                    image 'alpine'
+                    label 'docker-alpine'
+                    }
+                }
+            }
+            when{
+                expression{ GIT_BRANCH == 'origin/master'}
+            }
+            steps{
+                withCredentials([sshUserPrivateKey(credentialsId: "ec2_prod_private_key", keyFileVariable: 'keyfile', usernameVariable: 'NUSER')]) {
+                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                        script{ 
+                            sh'''
+                                apk update
+                                'which ssh-agent || ( apk add openssh-client )'
+                                eval $(ssh-agent -s)
+                                mkdir -p ~/.ssh
+                                chmod 700 ~/.ssh
+                                ssh-keyscan -p 22 -4 $EC2_PRODUCTION_HOST >> ~/.ssh/known_hosts
+                                chmod 644 ~/.ssh/known_hosts
+                                # Add the private key defined in PRIVATE_KEY variable
+                                echo "$keyfile" | tr -d '\r' | ssh-add - > /dev/nul
+                                ssh -o StrictHostKeyChecking=no -i ${keyfile} ${NUSER}@${EC2_PRODUCTION_HOST} docker stop $CONTAINER_NAME || true
+                                ssh -o StrictHostKeyChecking=no -i ${keyfile} ${NUSER}@${EC2_PRODUCTION_HOST} docker rm $CONTAINER_NAME || true
+                                ssh -o StrictHostKeyChecking=no -i ${keyfile} ${NUSER}@${EC2_PRODUCTION_HOST} docker rmi $USERNAME/$IMAGE_NAME:$IMAGE_TAG || true
+                                ssh -o StrictHostKeyChecking=no -i ${keyfile} ${NUSER}@${EC2_PRODUCTION_HOST} docker run --name $CONTAINER_NAME -d -e PORT=5000 -p 5000:5000 $USERNAME/$IMAGE_NAME:$IMAGE_TAG
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
 }
