@@ -128,7 +128,10 @@ pipeline {
         }
 
         stage('Deploy app on EC2-cloud Production test') {
-            input "Do you approve deployment?"
+            
+            timeout(time: 15, unit: "MINUTES") {
+                input message: 'Do you want to approve the deploy in production?', ok: 'Yes'
+            }
             agent {
                 docker {
                     image('alpine')
