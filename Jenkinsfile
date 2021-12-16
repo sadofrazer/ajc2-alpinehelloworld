@@ -143,7 +143,7 @@ pipeline {
                         script{ 
                             sh'''
                                 apk update
-                                'which ssh-agent || ( apk add openssh-client )'
+                                which ssh-agent || ( apk add openssh-client )
                                 eval $(ssh-agent -s)
                                 mkdir -p ~/.ssh
                                 chmod 700 ~/.ssh
