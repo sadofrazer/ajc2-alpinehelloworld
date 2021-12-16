@@ -128,7 +128,7 @@ pipeline {
         }
 
         stage('Deploy app on EC2-cloud Production test') {
-            input('Do you approve deployment?')
+            input "Do you approve deployment?"
             agent {
                 docker {
                     image('alpine')
