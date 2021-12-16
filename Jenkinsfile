@@ -58,9 +58,9 @@ pipeline {
                    sh '''
                        docker login -u $USERNAME -p $PASSWORD
                        docker push $USERNAME/$IMAGE_NAME:$IMAGE_TAG
-                       # docker stop $CONTAINER_NAME || true
-                       # docker rm $CONTAINER_NAME || true
-                       # docker rmi $USERNAME/$IMAGE_NAME:$IMAGE_TAG
+                       docker stop $CONTAINER_NAME || true
+                       docker rm $CONTAINER_NAME || true
+                       docker rmi $USERNAME/$IMAGE_NAME:$IMAGE_TAG
                    '''
                }
            }
@@ -121,6 +121,38 @@ pipeline {
                             }
 
                             sh'''
+                                ssh -o StrictHostKeyChecking=no -i ${keyfile} ${NUSER}@${EC2_PRODUCTION_HOST} docker run --name $CONTAINER_NAME -d -e PORT=5000 -p 5000:5000 $USERNAME/$IMAGE_NAME:$IMAGE_TAG
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+        
+         stage('Deploy app on EC2-cloud Production test') {
+            agent {
+                docker {
+                    image('alpine')
+                    args ' -u root'
+                }
+            }
+            when{
+                expression{ GIT_BRANCH == 'origin/master'}
+            }
+            steps{
+                withCredentials([sshUserPrivateKey(credentialsId: "ec2_prod_private_key", keyFileVariable: 'keyfile', usernameVariable: 'NUSER')]) {
+                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                        script{
+                            timeout(time: 15, unit: "MINUTES") {
+                                input message: 'Do you want to approve the deploy in production?', ok: 'Yes'
+                            }						
+                            sh'''
+                                apk update
+                                which ssh-agent || ( apk add openssh-client )
+                                eval $(ssh-agent -s)
+                                ssh -o StrictHostKeyChecking=no -i ${keyfile} ${NUSER}@${EC2_PRODUCTION_HOST} docker stop $CONTAINER_NAME || true
+                                ssh -o StrictHostKeyChecking=no -i ${keyfile} ${NUSER}@${EC2_PRODUCTION_HOST} docker rm $CONTAINER_NAME || true
+                                ssh -o StrictHostKeyChecking=no -i ${keyfile} ${NUSER}@${EC2_PRODUCTION_HOST} docker rmi $USERNAME/$IMAGE_NAME:$IMAGE_TAG || true
                                 ssh -o StrictHostKeyChecking=no -i ${keyfile} ${NUSER}@${EC2_PRODUCTION_HOST} docker run --name $CONTAINER_NAME -d -e PORT=5000 -p 5000:5000 $USERNAME/$IMAGE_NAME:$IMAGE_TAG
                             '''
                         }
