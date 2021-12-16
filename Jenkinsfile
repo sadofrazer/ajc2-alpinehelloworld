@@ -129,9 +129,6 @@ pipeline {
 
         stage('Deploy app on EC2-cloud Production test') {
             
-                timeout(time: 15, unit: "MINUTES")
-                input message: 'Do you want to approve the deploy in production?', ok: 'Yes'
-            
             agent {
                 docker {
                     image('alpine')
@@ -145,6 +142,9 @@ pipeline {
                 withCredentials([sshUserPrivateKey(credentialsId: "ec2_prod_private_key", keyFileVariable: 'keyfile', usernameVariable: 'NUSER')]) {
                     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                         script{ 
+                            timeout(time: 15, unit: "MINUTES") {
+                                input message: 'Do you want to approve the deploy in production?', ok: 'Yes'
+                            }
                             sh'''
                                 apk update
                                 which ssh-agent || ( apk add openssh-client )
