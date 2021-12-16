@@ -131,8 +131,6 @@ pipeline {
             agent {
                 docker {
                     image 'alpine'
-                    label 'docker-alpine'
-                    
                 }
             }
             when{
