@@ -132,7 +132,7 @@ pipeline {
                 docker{
                     image 'alpine'
                     label 'docker-alpine'
-                    }
+                    
                 }
             }
             when{
