@@ -130,7 +130,7 @@ pipeline {
         stage('Deploy app on EC2-cloud Production test') {
             agent {
                 docker {
-                    image 'alpine'
+                    image('alpine').inside(' -u 0')
                 }
             }
             when{
