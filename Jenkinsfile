@@ -7,7 +7,7 @@ pipeline {
         PRODUCTION = "frazer-ajc-prod-env"
         USERNAME = "sadofrazer"
         CONTAINER_NAME = "alpinehelloworld"
-        EC2_PRODUCTION_HOST = "54.88.166.62"
+        EC2_PRODUCTION_HOST = "54.197.117.36"
     }
 
     agent none
