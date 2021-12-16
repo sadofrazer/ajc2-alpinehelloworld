@@ -145,10 +145,10 @@ pipeline {
                                 apk update
                                 which ssh-agent || ( apk add openssh-client )
                                 eval $(ssh-agent -s)
-                                mkdir -p ~/.ssh
-                                chmod 700 ~/.ssh
-                                ssh-keyscan -p 22 $EC2_PRODUCTION_HOST >> ~/.ssh/known_hosts
-                                chmod 644 ~/.ssh/known_hosts
+                                # mkdir -p ~/.ssh
+                                # chmod 700 ~/.ssh
+                                # ssh-keyscan -p 22 $EC2_PRODUCTION_HOST >> ~/.ssh/known_hosts
+                                # chmod 644 ~/.ssh/known_hosts
                                 # Add the private key defined in PRIVATE_KEY variable
                                 # echo "${keyfile}" | tr -d \'\r\' | ssh-add - > /dev/nul
                                 ssh -o StrictHostKeyChecking=no -i ${keyfile} ${NUSER}@${EC2_PRODUCTION_HOST} docker stop $CONTAINER_NAME || true
