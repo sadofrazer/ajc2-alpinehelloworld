@@ -24,6 +24,9 @@ pipeline {
        }
 
        stage ('Run test container') {
+           when {
+                expression { GIT_BRANCH == 'origin/master' && DEPLOY_APP != 'yes' }
+            }
            steps {
                script{
                    sh '''
@@ -38,9 +41,6 @@ pipeline {
 
 
        stage ('clean env and save artifact') {
-           when {
-                expression { GIT_BRANCH == 'origin/master' && DEPLOY_APP != 'yes' }
-            }
            environment{
                PASSWORD = credentials('dockerhub_password')
            }
