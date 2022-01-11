@@ -41,6 +41,9 @@ pipeline {
            environment{
                PASSWORD = credentials('dockerhub_password')
            }
+           when {
+                expression { GIT_BRANCH == 'origin/master' && DEPLOY_APP != 'yes' }
+            }
            steps {
                script{
                    sh '''
