@@ -7,7 +7,8 @@ pipeline {
         PRODUCTION = "frazer-ajc-prod-env"
         USERNAME = "sadofrazer"
         CONTAINER_NAME = "alpinehelloworld"
-        EC2_PRODUCTION_HOST = "54.197.117.36"
+        EC2_PRODUCTION_HOST = "3.230.157.117"
+        DEPLOY_APPS = "yes"
     }
 
     agent none
@@ -68,7 +69,7 @@ pipeline {
 
        stage('Push image in staging and deploy it') {
             when {
-                expression { GIT_BRANCH == 'origin/master' }
+                expression { GIT_BRANCH == 'origin/master' && DEPLOY_APP != 'yes' }
             }
             agent any
             environment {
@@ -88,7 +89,7 @@ pipeline {
 
         stage('Push image in Prod and deploy it') {
             when {
-                expression { GIT_BRANCH == 'origin/master' }
+                expression { GIT_BRANCH == 'origin/master' && DEPLOY_APP != 'yes' }
             }
             agent any
             environment {
@@ -109,7 +110,7 @@ pipeline {
         stage('Deploy app on EC2-cloud Production') {
             agent any
             when{
-               expression{ GIT_BRANCH == 'origin/master'}
+               expression{ GIT_BRANCH == 'origin/master' && DEPLOY_APP != 'yes'}
             }
             steps{
                 withCredentials([sshUserPrivateKey(credentialsId: "ec2_prod_private_key", keyFileVariable: 'keyfile', usernameVariable: 'NUSER')]) {
@@ -137,7 +138,7 @@ pipeline {
                 }
             }
             when{
-                expression{ GIT_BRANCH == 'origin/master'}
+                expression{ GIT_BRANCH == 'origin/master' && DEPLOY_APP != 'yes'}
             }
             steps{
                 withCredentials([sshUserPrivateKey(credentialsId: "ec2_prod_private_key", keyFileVariable: 'keyfile', usernameVariable: 'NUSER')]) {
