@@ -11,7 +11,7 @@ pipeline {
         DEPLOY_APPS = "yes"
     }
 
-    agent none
+    agent any
 
     stages{
 
