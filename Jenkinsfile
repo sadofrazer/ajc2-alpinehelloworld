@@ -23,23 +23,6 @@ pipeline {
            }
        }
 
-       stage ('Run test container') {
-           when {
-                expression { GIT_BRANCH == 'origin/master' && DEPLOY_APP != 'yes' }
-            }
-           steps {
-               script{
-                   sh '''
-                       docker stop $CONTAINER_NAME || true
-                       docker rm $CONTAINER_NAME || true
-                       docker run --name $CONTAINER_NAME -d -e PORT=5000 -p 5000:5000 $USERNAME/$IMAGE_NAME:$IMAGE_TAG
-                       sleep 5
-                   '''
-               }
-           }
-       }
-
-
        stage ('clean env and save artifact') {
            environment{
                PASSWORD = credentials('dockerhub_password')
