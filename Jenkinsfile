@@ -36,15 +36,6 @@ pipeline {
            }
        }
 
-       stage ('Test application') {
-           steps {
-               script{
-                   sh '''
-                       curl http://localhost:5000 | grep -iq "Hello world!"
-                   '''
-               }
-           }
-       }
 
        stage ('clean env and save artifact') {
            environment{
