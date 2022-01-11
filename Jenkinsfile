@@ -8,8 +8,8 @@ pipeline {
         USERNAME = "sadofrazer"
         CONTAINER_NAME = "alpinehelloworld"
         EC2_PRODUCTION_HOST = "3.230.157.117"
-        DEPLOY_APPS = "yes"
     }
+    def DEPLOY_APPS = "yes"
 
     agent any
 
